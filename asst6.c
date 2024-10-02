@@ -18,7 +18,7 @@ void test_heap(void) {
     heap_t *heap = heap_create(200);
     for (heap_key_t ix = 0; ix < 20; ix++) {
         heap_key_t key = rand_between(0, 1000);
-        heap_insert(heap, key, (heap_value_t)key);
+        heap_insert(heap, key, (heap_value_t){.as_int = key});
         heap_print(heap);
     }
     for (int ix = 0; ix < 10; ix++) {

@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <math.h>
 #include <stdlib.h>
 
 #include "some_heap.h"
@@ -9,6 +10,15 @@
 heap_t *heap_create(int capacity) {
     heap_t *minHeap = (heap_t*)malloc(sizeof(heap_t));
     minHeap->capacity = capacity;
+    minHeap->size = 0;
+
+    minHeap->data = (heap_node_t*)malloc(capacity * sizeof(heap_node_t));
+
+    for (int idx = 0; idx < capacity; idx++) {
+        minHeap->data[idx].key = 0;
+        minHeap->data[idx].value = NULL;
+    }
+
     return minHeap;
 }
 
@@ -53,36 +63,44 @@ void heap_print(heap_t *heap) {
 }
 
 void heap_swap(heap_t *heap, int index1, int index2) {
-    heap_value_t tmp = heap->data[index1].value;
-    heap->data[index1].value = heap->data[index2].value;
-    heap->data[index2].value = tmp;
+    int tmp = heap->data[index1].value.as_int;
+    heap->data[index1].value.as_int = heap->data[index1].value.as_int;
+    heap->data[index2].value.as_int = tmp;
 }
 
 void heap_bubble_up(heap_t *heap, int index) {
-    unsigned int parent_index = heap_parent(index);
-    heap_value_t parentVal = heap->data[parent_index].value;
+    int curVal = heap->data[index].value.as_int;
+    unsigned int parentIdx = heap_parent(index);
+    int parentVal = heap->data[parentIdx].value.as_int;
 
-    while (index > 0 && heap->data[parent_index].value > heap->data[index].value) {
-        heap_swap(heap, parent_index, index);
-        index = parent_index;
-        parent_index = heap_parent(index);
+    while (index > 0 && parentVal > curVal) {
+        heap_swap(heap, parentIdx, index);
+        index = parentIdx;
+        curVal = heap->data[index].value.as_int;
+        parentIdx = heap_parent(index);
+        parentVal = heap->data[parentIdx].value.as_int;
     }
 }
 
 void heap_bubble_down(heap_t *heap, int index) {
-    unsigned int left_child_index = heap_left_child(index);
-    unsigned int right_child_index = heap_right_child(index);
+    int curVal = heap->data[index].value.as_int;
+    unsigned int leftChildIdx = heap_left_child(index);
+    int leftChildVal = heap->data[leftChildIdx].value.as_int;
+    unsigned int rightChildIdx = heap_right_child(index);
+    int rightChildVal = heap->data[rightChildIdx].value.as_int;
     
-    while (index < heap->size && (heap->data[index].value > heap->data[left_child_index].value || heap->data[index].value > heap->data[right_child_index].value)) {
-        if (heap->data[left_child_index].value > heap->data[right_child_index].value) {
-            heap_swap(heap, index, right_child_index);
-            index = right_child_index;
+    while (index < heap->size && (curVal > leftChildVal || curVal > rightChildVal)) {
+        if (leftChildVal > rightChildVal) {
+            heap_swap(heap, index, rightChildIdx);
+            index = rightChildIdx;
         } else {
-            heap_swap(heap, index, left_child_index);
-            index = left_child_index;
+            heap_swap(heap, index, leftChildIdx);
+            index = leftChildIdx;
         }
-        left_child_index = heap_left_child(index);
-        right_child_index = heap_right_child(index);
+        leftChildIdx = heap_left_child(index);
+        leftChildVal = heap->data[leftChildIdx].value.as_int;
+        rightChildIdx = heap_right_child(index);
+        int rightChildVal = heap->data[rightChildIdx].value.as_int;
     }
 }
 
@@ -101,7 +119,7 @@ void heap_insert(heap_t *heap, heap_key_t key, heap_value_t data) {
 
 heap_value_t heap_remove_min(heap_t *heap) {
     if (heap_size(heap) == 0) {
-        return NULL;
+        return (heap_value_t){.as_int = KEY_NOT_PRESENT};
     }
 
     heap_value_t min = heap->data[0].value;
