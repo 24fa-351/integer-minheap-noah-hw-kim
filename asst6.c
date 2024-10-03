@@ -22,14 +22,26 @@ void test_heap(void) {
         heap_print(heap);
     }
     for (int ix = 0; ix < 10; ix++) {
-        heap_key_t key = (heap_key_t)heap_remove_min(heap);
-        printf("Removed %llu\n", key);
+        heap_value_t key = heap_remove_min(heap);
+        printf("Removed %llu\n", key.as_int);
         heap_print(heap);
     }
     exit(0);
 }
+
+void save_test_heap() {
+    FILE *file = freopen("heaptest.txt", "w", stdout);
+    if (file == NULL) {
+        perror("Failed to open file");
+        exit(EXIT_FAILURE);
+    }
+    test_heap();
+    fclose(file);
+}
+
+
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-
+    save_test_heap();
     test_heap();
 }
