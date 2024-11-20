@@ -14,12 +14,14 @@ typedef union heap_val
     void *as_ptr;
 } heap_value_t;
 
-typedef struct {
+typedef struct
+{
     heap_key_t key;
     heap_value_t value;
 } heap_node_t;
 
-typedef struct {
+typedef struct
+{
     heap_node_t *data;
     int size;
     int capacity;
